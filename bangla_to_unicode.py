@@ -6,7 +6,6 @@ class BanglaToUnicode:
         self.geetanjali_mapper = None
         self.path = {
             "sutonnymj": 'resources/sutonnymj_mapper.json',
-            "geetanjali": 'resources/geetanjali_mapper.json'
         }
         
     def unicode_to_ncr(self, text):
@@ -39,15 +38,6 @@ class BanglaToUnicode:
         
         return self.convert(text, self.sutonnymj_mapper["replace"], self.sutonnymj_mapper["find"])
     
-    def from_geetanjali(self, text):
-        if not self.geetanjali_mapper:
-            self.__load_mapper("geetanjali")
-        return self.convert(text, self.geetanjali_mapper["find"], self.geetanjali_mapper["replace"])
-    
-    def to_geetanjali(self, text):
-        if not self.geetanjali_mapper:
-            self.__load_mapper("geetanjali")
-        return self.convert(text, self.geetanjali_mapper["replace"], self.geetanjali_mapper["find"])
     
     def convert(self, text, find_patterns, replace_patterns):
         text = self.unicode_to_ncr(text)
@@ -60,12 +50,8 @@ class BanglaToUnicode:
 if __name__ == '__main__':
     bangla_to_unicode = BanglaToUnicode()
     text = "আল্লাহ, আব্দুর রহিম, তার মা-বাবা ও স্ত্রী কে জান্নাতুল ফিরদাউস দান করুন, আমীন।"
-    geetanjali = "aal্lাh, aab্dুR Rhিm, tাR mা-bাbা o s্t্Rী kে jাn্nাtুl PিRdাus dাn kRুn, aamীn|"
+   
     sutonnymj = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
     converted = bangla_to_unicode.from_sutonnymj(sutonnymj)
     assert text == converted, f"Sutonnymj: Expected: {text}\n Got: {converted}"
     print("Hurrah!! sutonnymj passed!")
-
-    converted = bangla_to_unicode.from_geetanjali(geetanjali)
-    assert text == converted, f"geetanjali: Expected: {text}\n Got: {converted}"
-    print("Hurrah!! geetanjali passed!")
