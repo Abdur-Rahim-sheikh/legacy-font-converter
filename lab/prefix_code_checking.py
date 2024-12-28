@@ -14,38 +14,38 @@ class Node:
         self.order = order
 
 class BestMatch:
-    def __init__(self, key=None, value=None, order=float('inf')):
-        self.key = key
+    def __init__(self, key_len=None, value=None, order=float('inf')):
+        self.key_len = key_len
         self.value = value
         self.order = order
+        self.unmatched_len = 0
 
 class SpecialTrie:
     def __init__(self):
         self.ORDER = 0
         self.root = Node()
-        self.current_node = self.root
+        self.__reset_progress()
 
     def next(self, char:str)-> tuple[bool, BestMatch]:
         # this will run untill it matches, if stuck returns 
         # lowest key, value of the node
         if char not in self.current_node.children:
+            self.__reset_progress()
             return False, self.best_match
         self.current_node = self.current_node.children[char]
-        self.key_matched.append(char)
+        self.key_len += 1
         if self.current_node.value and self.current_node.order < self.best_match.order:
-            self.best_match.key =  ''.join(self.key_matched)
+            self.best_match.key_len =  self.key_len
             self.best_match.value = self.current_node.value
             self.best_match.order = self.current_node.order
-        
+            
+        self.best_match.unmatched_len = self.key_len - self.best_match.key_len
         return True, self.best_match
     
-    def reset_progress(self):
+    def __reset_progress(self):
         self.current_node = self.root
-        self.key_matched = []
+        self.key_len = 0
         self.best_match = BestMatch()
-
-    def get_best_match(self):
-        return self.best_match
     
     def insert(self, key:str, value:str)-> int:
         has_prefix = False
@@ -97,7 +97,17 @@ if __name__ == '__main__':
     assert len(find) == len(replace), f"For {file_name} find and replace must have the same length."
     trie = SpecialTrie()
     total_prefix = trie.build(find, replace)
+    logger.debug(f"Total prefix found: {total_prefix}")
 
-    assert total_prefix == 0, f"Expected: 0, Got: {total_prefix}"
-    logger.info(f"Hurrah!! {file_name} passed prefix test!")
-    
+    text = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
+    idx, ln = 0, len(text)
+    unicode_text = []
+    last_idx = 0
+    while idx < ln:
+        has_next, match = trie.next(text[idx])
+        if not has_next:
+            unicode_text.append(match.value)
+            last_idx+=max(match.key_len,1)
+            idx = last_idx
+        else:
+            idx+=1
