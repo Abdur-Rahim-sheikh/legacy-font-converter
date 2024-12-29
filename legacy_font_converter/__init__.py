@@ -1,2 +1,2 @@
-from special_trie import SpecialTrie, BestMatch
-from legacy_font_converter import LegacyFontConverter
+from .special_trie import SpecialTrie, BestMatch
+from .legacy_font_converter import LegacyFontConverter
