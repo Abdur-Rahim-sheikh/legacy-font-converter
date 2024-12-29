@@ -1,9 +1,8 @@
-import re
 import json
 import copy
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 class Node:
     def __init__(self):
@@ -109,7 +108,7 @@ class SpecialTrie:
         self.ORDER += 1
         return has_prefix
 
-    def __build(self, patterns:list, values:list)-> int:
+    def __build(self, patterns:list[str], values:list[str])-> int:
         # we expect patterns and values are in ncr format 
         total_prefix = 0
         for pattern, value in zip(patterns, values):
@@ -117,11 +116,6 @@ class SpecialTrie:
         return total_prefix
     
     
-    
-
-def ncr_to_unicode(text:str)-> str:
-    return re.sub(r'&#(\d+);', lambda match: chr(int(match.group(1))), text)
-
 if __name__ == '__main__':
     file_name = "lab/modified_sutonnymj_mapper.json"
     
