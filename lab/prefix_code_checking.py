@@ -24,12 +24,54 @@ class BestMatch:
         return f"{self.value=}\n {self.order=}\n {self.key_len=}\n {self.unmatched_len=}"
         
 class SpecialTrie:
-    def __init__(self):
+    def __init__(self, patterns: list[str], values: list[str]):
+        """
+            This special trie matches text replace with the lowest
+            order key as the key might have prefix relation.
+            So pass the pattern in a order where earlier pattern will be 
+            replaced first.
+            args:
+                patterns: list of unicode patterns in highest to lowest precedence
+                values: list of unicode values for particular pattern
+                note: their length must be same
+                note2: strings should in plain unicode values 
+                i.e.:A unicode string for sutonnoymj legacy font "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|" 
+
+        """
+        assert len(patterns) == len(values), "Patterns and values must have the same length."
         self.ORDER = 0
         self.root = Node()
         self.__reset_progress()
+        total_prefix = self.__build(patterns, values)
+        logger.info(f"Total prefix found: {total_prefix}")
 
-    def next(self, char:str)-> tuple[bool, BestMatch]:
+    def convert(self, text:str)-> str:
+        EOF = "\U0010FFFF"
+        text += EOF
+        idx, ln = 0, len(text)
+        unicode_text = []
+        while idx < ln:
+            has_next, match = self.__next(text[idx])
+            if not has_next:
+                idx-=match.unmatched_len
+                if not match.value:
+                    unicode_text.append(text[idx])
+                    idx+=1
+                else:
+                    unicode_text.append(match.value)
+                
+            else: idx+=1
+        return "".join(unicode_text[:-1])
+
+    def search(self, key:str)-> str:
+        node = self.root
+        for char in key:
+            if char not in node.children:
+                return None
+            node = node.children[char]
+        return node.value
+    
+    def __next(self, char:str)-> tuple[bool, BestMatch]:
         # this will run untill it matches, if stuck returns 
         # lowest key, value of the node
         if char not in self.current_node.children:
@@ -53,7 +95,7 @@ class SpecialTrie:
         self.key_len = 0
         self.best_match = BestMatch()
     
-    def insert(self, key:str, value:str)-> int:
+    def __insert(self, key:str, value:str)-> int:
         has_prefix = False
         node = self.root
         for char in key:
@@ -61,67 +103,45 @@ class SpecialTrie:
                 node.children[char] = Node()
             node = node.children[char]
 
-            if node.value: 
-                has_prefix = True
-                logger.debug(f"Prefix found: {key} -> {node.value}")
+            if node.value: has_prefix = True
+                
         node.set_leaf(value, self.ORDER)
         self.ORDER += 1
         return has_prefix
 
-    def build(self, patterns:list, values:list)-> int:
+    def __build(self, patterns:list, values:list)-> int:
         # we expect patterns and values are in ncr format 
         total_prefix = 0
         for pattern, value in zip(patterns, values):
-            total_prefix += self.insert(pattern, value)
+            total_prefix += self.__insert(pattern, value)
         return total_prefix
     
-    def search(self, key:str)-> str:
-        node = self.root
-        for char in key:
-            if char not in node.children:
-                return None
-            node = node.children[char]
-        return node.value
+    
     
 
 def ncr_to_unicode(text:str)-> str:
     return re.sub(r'&#(\d+);', lambda match: chr(int(match.group(1))), text)
 
 if __name__ == '__main__':
-    file_name = "lab/sutonnymj_mapper.json"
-    modified_file_name = "lab/modified_sutonnymj_mapper.json"
+    file_name = "lab/modified_sutonnymj_mapper.json"
+    
     data = json.load(open(file_name, 'r'))
 
     find, replace = data["find"], data["replace"]
-    find = [ncr_to_unicode(pattern) for pattern in find]
-    replace = [ncr_to_unicode(pattern) for pattern in replace]
-    with open(modified_file_name, "w", encoding="utf-8") as file:
-        json.dump(
-            {"find": find, "replace": replace}, 
-            file, 
-            indent=4
-        )
-    assert len(find) == len(replace), f"For {file_name} find and replace must have the same length."
-    trie = SpecialTrie()
-    total_prefix = trie.build(find, replace)
-    logger.debug(f"Total prefix found: {total_prefix}")
-    EOF = "\U0010FFFF"
-    text = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"+EOF
+
+    sutonnymj_to_unicode = SpecialTrie(find, replace)
+    unicode_to_sutonnymj = SpecialTrie(replace, find)
+    original_text = "আল্লাহ, আব্দুর রহিম, তার মা-বাবা ও স্ত্রী কে জান্নাতুল ফিরদাউস দান করুন, আমীন।"
+    text = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
     
-    idx, ln = 0, len(text)
-    unicode_text = []
-    while idx < ln:
-        has_next, match = trie.next(text[idx])
-        if not has_next:
-            logger.debug(match)
-            idx-=match.unmatched_len
-            if not match.value:
-                unicode_text.append(text[idx])
-                idx+=1
-            else:
-                unicode_text.append(match.value)
-            
-        else: idx+=1
-    logger.debug("".join(unicode_text[:-1]))
+    convert = sutonnymj_to_unicode.convert(text)
+    
 
-
+    assert convert == original_text, f"{convert} != {original_text}"
+    
+    convert = sutonnymj_to_unicode.convert(original_text)
+    convert_back = unicode_to_sutonnymj.convert(convert)
+    assert convert_back == original_text, f"{convert_back} != {original_text}"
+    logger.info("Hurrah! Conversion successful.")
+    logger.info(f"Converted: {convert}")
+    logger.info(f"Converted back: {convert_back}")
