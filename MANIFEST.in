@@ -1,1 +1,1 @@
-include legacy_font_converter/resources/*
+include legacy_font_converter/resources/*.json
