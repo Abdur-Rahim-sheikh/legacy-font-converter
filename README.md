@@ -13,9 +13,7 @@ pip install legacy-font-converter
 Or you can install the package from source:
 
 ```bash
-git clone https://github.com/Abdur-Rahim-sheikh/legacy-font-converter.git
-cd legacy-font-converter
-python setup.py install
+pip install git+https://github.com/Abdur-Rahim-sheikh/legacy-font-converter.git
 ```
 
 ## Example usage

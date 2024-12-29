@@ -1,3 +1,18 @@
+[tool.poetry]
+name = "legacy-font-converter"
+version = "0.1.0"
+description = "A tool to convert between legacy font and unicode"
+authors = ["Abdur-Rahim-sheikh <abi.rahim.sheikh@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/Abdur-Rahim-sheikh/legacy-font-converter"
+packages = [{include = "legacy_font_converter"}]
+
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
