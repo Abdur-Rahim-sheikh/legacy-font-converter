@@ -2,3 +2,6 @@ lab/*.txt
 lab/*.csv
 lab/*.json
 __pycache__/
+dist/
+build/
+*.egg-info/
