@@ -1,5 +1,6 @@
 import re
 import json
+import copy
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -14,12 +15,14 @@ class Node:
         self.order = order
 
 class BestMatch:
-    def __init__(self, key_len=None, value=None, order=float('inf')):
-        self.key_len = key_len
+    def __init__(self, value=None, order=float('inf')):
+        self.key_len = 0
         self.value = value
         self.order = order
         self.unmatched_len = 0
-
+    def __str__(self):
+        return f"{self.value=}\n {self.order=}\n {self.key_len=}\n {self.unmatched_len=}"
+        
 class SpecialTrie:
     def __init__(self):
         self.ORDER = 0
@@ -30,16 +33,19 @@ class SpecialTrie:
         # this will run untill it matches, if stuck returns 
         # lowest key, value of the node
         if char not in self.current_node.children:
+            match = copy.deepcopy(self.best_match)
             self.__reset_progress()
-            return False, self.best_match
+            return False, match
+
         self.current_node = self.current_node.children[char]
         self.key_len += 1
         if self.current_node.value and self.current_node.order < self.best_match.order:
             self.best_match.key_len =  self.key_len
             self.best_match.value = self.current_node.value
             self.best_match.order = self.current_node.order
-            
+
         self.best_match.unmatched_len = self.key_len - self.best_match.key_len
+        
         return True, self.best_match
     
     def __reset_progress(self):
@@ -52,7 +58,7 @@ class SpecialTrie:
         node = self.root
         for char in key:
             if char not in node.children:
-                node.children[char] = self.Node()
+                node.children[char] = Node()
             node = node.children[char]
 
             if node.value: 
@@ -63,6 +69,7 @@ class SpecialTrie:
         return has_prefix
 
     def build(self, patterns:list, values:list)-> int:
+        # we expect patterns and values are in ncr format 
         total_prefix = 0
         for pattern, value in zip(patterns, values):
             total_prefix += self.insert(pattern, value)
@@ -88,7 +95,7 @@ if __name__ == '__main__':
     find, replace = data["find"], data["replace"]
     find = [ncr_to_unicode(pattern) for pattern in find]
     replace = [ncr_to_unicode(pattern) for pattern in replace]
-    with open(modified_file_name, "w") as file:
+    with open(modified_file_name, "w", encoding="utf-8") as file:
         json.dump(
             {"find": find, "replace": replace}, 
             file, 
@@ -98,16 +105,23 @@ if __name__ == '__main__':
     trie = SpecialTrie()
     total_prefix = trie.build(find, replace)
     logger.debug(f"Total prefix found: {total_prefix}")
-
-    text = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
+    EOF = "\U0010FFFF"
+    text = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"+EOF
+    
     idx, ln = 0, len(text)
     unicode_text = []
-    last_idx = 0
     while idx < ln:
         has_next, match = trie.next(text[idx])
         if not has_next:
-            unicode_text.append(match.value)
-            last_idx+=max(match.key_len,1)
-            idx = last_idx
-        else:
-            idx+=1
+            logger.debug(match)
+            idx-=match.unmatched_len
+            if not match.value:
+                unicode_text.append(text[idx])
+                idx+=1
+            else:
+                unicode_text.append(match.value)
+            
+        else: idx+=1
+    logger.debug("".join(unicode_text[:-1]))
+
+

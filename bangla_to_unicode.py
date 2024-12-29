@@ -1,5 +1,10 @@
 import re
 import json
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class BanglaToUnicode:
     def __init__(self):
         self.sutonnymj_mapper = None
@@ -42,8 +47,14 @@ class BanglaToUnicode:
     def convert(self, text, find_patterns, replace_patterns):
         text = self.unicode_to_ncr(text)
         for find, replace in zip(find_patterns, replace_patterns):
-            text = re.sub(find, replace, text)
-        
+            text2 = re.sub(find, replace, text)
+            if text2 != text:
+                logger.info(f"""
+                    find: {self.ncr_to_unicode(find)},
+                    replace: {self.ncr_to_unicode(replace)},
+                    text: {self.ncr_to_unicode(text2)}
+                    """)
+            text = text2
         return self.ncr_to_unicode(text)
     
 
@@ -52,6 +63,7 @@ if __name__ == '__main__':
     text = "আল্লাহ, আব্দুর রহিম, তার মা-বাবা ও স্ত্রী কে জান্নাতুল ফিরদাউস দান করুন, আমীন।"
    
     sutonnymj = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
+    
     converted = bangla_to_unicode.from_sutonnymj(sutonnymj)
     assert text == converted, f"Sutonnymj: Expected: {text}\n Got: {converted}"
-    print("Hurrah!! sutonnymj passed!")
+    logger.info("Hurrah!! sutonnymj passed!")
