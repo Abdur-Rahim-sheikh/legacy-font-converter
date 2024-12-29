@@ -52,10 +52,10 @@ class LegacyFontConverter:
         self.mapper[name+"_inverse"] = trie_inverse
 
     
-    def convert(self, text, font_name="sutonnymj", to_legacy=False):
+    def convert(self, text:str, font_name="sutonnymj", to_legacy=False)->str:
         """
-            text: string to convert
-            font_name: name of the font to convert should be in the available list
+            text: string to convert\n
+            font_name: name of the font to convert should be in the available list\n
             to_legacy: if True, convert from font to unicode, else unicode to font
         """
         font_name = font_name.lower()
@@ -66,7 +66,7 @@ class LegacyFontConverter:
         if to_legacy: font_name += "_inverse"
         return self.mapper[font_name].convert(text)
     
-    def available_fonts(self):
+    def available_fonts(self)->list[str]:
         return list(self.mapper.keys())
     
 
