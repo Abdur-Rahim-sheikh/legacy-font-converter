@@ -1,3 +1,4 @@
 lab/*.txt
 lab/*.csv
 lab/*.json
+__pycache__/
