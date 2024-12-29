@@ -63,7 +63,7 @@ if __name__ == '__main__':
     text = "আল্লাহ, আব্দুর রহিম, তার মা-বাবা ও স্ত্রী কে জান্নাতুল ফিরদাউস দান করুন, আমীন।"
    
     sutonnymj = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
-    
+    sutonnymj = "wdi`vDm"
     converted = bangla_to_unicode.from_sutonnymj(sutonnymj)
     assert text == converted, f"Sutonnymj: Expected: {text}\n Got: {converted}"
     logger.info("Hurrah!! sutonnymj passed!")

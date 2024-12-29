@@ -9,7 +9,7 @@ class Node:
     def __init__(self):
         self.children = {}
         self.value = None
-        self.order = None
+        self.order = float('inf')
     def set_leaf(self, value:str, order:int):
         self.value = value
         self.order = order
@@ -104,8 +104,8 @@ class SpecialTrie:
             node = node.children[char]
 
             if node.value: has_prefix = True
-                
-        node.set_leaf(value, self.ORDER)
+        if self.ORDER < node.order:        
+            node.set_leaf(value, self.ORDER)
         self.ORDER += 1
         return has_prefix
 
@@ -134,14 +134,16 @@ if __name__ == '__main__':
     original_text = "আল্লাহ, আব্দুর রহিম, তার মা-বাবা ও স্ত্রী কে জান্নাতুল ফিরদাউস দান করুন, আমীন।"
     text = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
     
+    logger.info(sutonnymj_to_unicode.convert(text))
     convert = sutonnymj_to_unicode.convert(text)
     
 
     assert convert == original_text, f"{convert} != {original_text}"
     
-    convert = sutonnymj_to_unicode.convert(original_text)
-    convert_back = unicode_to_sutonnymj.convert(convert)
+    convert = unicode_to_sutonnymj.convert(original_text)
+    convert_back = sutonnymj_to_unicode.convert(convert)
     assert convert_back == original_text, f"{convert_back} != {original_text}"
     logger.info("Hurrah! Conversion successful.")
     logger.info(f"Converted: {convert}")
     logger.info(f"Converted back: {convert_back}")
+
