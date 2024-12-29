@@ -1,22 +1,40 @@
-import os
 import json
 import logging
-
-from special_trie import SpecialTrie
-
+from .special_trie import SpecialTrie
+from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class LegacyFontConverter:
-    def __init__(self, json_path="resources"):
+    """
+        LegacyFontConverter is a class to convert text between legacy fonts and unicode.
+        It uses SpecialTrie to encove the conversion patterns.
+        Currently, it supports the following fonts:
+        - sutonnymj
+
+        Usage:
+        converter = LegacyFontConverter()
+        sutonnymj = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
+        unicode_text = converter.convert(sutonnymj, font_name="sutonnymj")
+        print(unicode_text)
+
+        Output: "আল্লাহ, আব্দুর রহিম, তার মা-বাবা ও স্ত্রী কে জান্নাতুল ফিরদাউস দান করুন, আমীন।"
+
+        if you want to convert from unicode to font, set to_legacy=True
+        font_text = converter.convert(unicode_text, font_name="sutonnymj", to_legacy=True)
+        print(font_text)
+    """
+    def __init__(self):
         self.mapper = {}
         self.path = {}
-        for file in os.listdir(json_path):
-            if not file.endswith(".json"): continue
-            name = ".".join(file.split(".")[:-1])
+        json_path = Path(__file__).resolve().parent / "resources"
+        
+        for file in Path(json_path).iterdir():
+            if file.suffix != ".json": continue
+
+            name = file.stem
             self.mapper[name] = None
-                
-            self.path[name] = os.path.join(json_path, file)
+            self.path[name] = file
         
     
     def __load_mapper(self, name):
