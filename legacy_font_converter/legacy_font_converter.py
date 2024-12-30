@@ -44,9 +44,9 @@ class LegacyFontConverter:
             assert "find" in data and "replace" in data, "Invalid json format"
             trie = SpecialTrie(patterns=data["find"], values=data["replace"])
             trie_inverse = SpecialTrie(patterns=data["replace"], values=data["find"])
-            print(f"{name} mapper loaded successfully.")
+            logger.info(f"{name} mapper loaded successfully.")
         except Exception as e:
-            print(f"Error: {e}")
+            logger.info(f"Error: {e}")
         
         self.mapper[name] = trie
         self.mapper[name+"_inverse"] = trie_inverse
