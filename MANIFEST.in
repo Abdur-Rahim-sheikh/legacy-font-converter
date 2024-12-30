@@ -1,1 +1,3 @@
-include legacy_font_converter/resources/*.json
+include README.md
+include contributor_guide.md
+recursive-include legacy_font_converter/resources *
