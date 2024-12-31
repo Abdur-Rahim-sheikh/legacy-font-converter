@@ -33,10 +33,14 @@ Or you can install the package from source:
 pip install git+https://github.com/Abdur-Rahim-sheikh/legacy-font-converter.git
 ```
 
-## Example usage
+## usages
 
 ```python
 from legacy_font_converter import LegacyFontConverter
+legacy_font_converter = LegacyFontConverter()
+sutonnymj = "Avjø¬vn, Avãyi iwng, Zvi gvÑevev I ¯Íªx †K Rv›bvZyj wdi`vDm `vb Kiyb, Avgxb|"
+text = legacy_font_converter.convert(sutonnymj,'sutonnymj', to_legacy=False)
+print(text)
 ```
 
 
