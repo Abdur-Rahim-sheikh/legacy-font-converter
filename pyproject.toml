@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "legacy-font-converter"
-version = "0.1.2"
+version = "0.1.3"
 description = "A tool to convert between legacy font and unicode"
 authors = ["Abdur-Rahim-sheikh <abi.rahim.sheikh@gmail.com>"]
 readme = "README.md"
